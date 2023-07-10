@@ -53,11 +53,11 @@ def test__utils___to_time(args, result, exception):
     (['label'], None, ValueError),
     (['label:'], None, ValueError),
     (['label:00:01'], None, ValueError),
-    (['song_01:0h0m1s'], [(1, 'song_01')], None),
-    (['song_01:00h00m01s'], [(1, 'song_01')], None),
-    (['song_01:00m01s'], [(1, 'song_01')], None),
-    (['song_01:01s'], [(1, 'song_01')], None),
-    (['song01:02s', 'song02:01s'], [(2, 'song01'), (1, 'song02')], None),
+    (['song_01:0h0m1s'], ((1, 'song_01'),), None),
+    (['song_01:00h00m01s'], ((1, 'song_01'),), None),
+    (['song_01:00m01s'], ((1, 'song_01'),), None),
+    (['song_01:01s'], ((1, 'song_01'),), None),
+    (['song01:02s', 'song02:01s'], ((2, 'song01'), (1, 'song02'),), None),
 ])
 def test__utils__get_songs(args, result, exception):
     """test__utils__get_songs."""
@@ -69,8 +69,8 @@ def test__utils__get_songs(args, result, exception):
 
 
 @mark.parametrize('args,result', [
-    ([[], 0, [(0, [])]], (0, [(0, [])])),
-    ([[(2, 'song_01')], 1, [(0, [])]], (0, [(2, [(2, 'song_01')])])),
+    ([(), 0, ((0, ()),)], (0, ((0, ()),))),
+    ([((2, 'song_01'),), 1, ((0, ()),)], (0, ((2, ((2, 'song_01'),)),))),
 ])
 def test__utils____get_subsets(args, result):
     """test__utils____get_subsets."""
@@ -78,14 +78,14 @@ def test__utils____get_subsets(args, result):
 
 
 @mark.parametrize('args,result', [
-    ([[], 1], (0, [(0, [])])),
+    ([(), 1], (0, ((0, ()),))),
     (
-        [[(354, 'song05'), (337, 'song03'), (316, 'song06'), (291, 'song04'), (281, 'song08'), (225, 'song07'), (221, 'song02'), (170, 'song09'), (55, 'song01')], 2],
-        (8, [(1121, [(354, 'song05'), (316, 'song06'), (281, 'song08'), (170, 'song09')]), (1129, [(337, 'song03'), (291, 'song04'), (225, 'song07'), (221, 'song02'), (55, 'song01')])])
+        [((354, 'song05'), (337, 'song03'), (316, 'song06'), (291, 'song04'), (281, 'song08'), (225, 'song07'), (221, 'song02'), (170, 'song09'), (55, 'song01')), 2],
+        (8, ((1129, ((55, 'song01'), (221, 'song02'), (225, 'song07'), (291, 'song04'), (337, 'song03'))), (1121, ((170, 'song09'), (281, 'song08'), (316, 'song06'), (354, 'song05')))))
     ),
     (
-        [[(354, 'song05'), (337, 'song03'), (316, 'song06'), (291, 'song04'), (281, 'song08'), (225, 'song07'), (221, 'song02'), (170, 'song09'), (55, 'song01')], 3],
-        (20, [(762, [(316, 'song06'), (225, 'song07'), (221, 'song02')]), (742, [(291, 'song04'), (281, 'song08'), (170, 'song09')]), (746, [(354, 'song05'), (337, 'song03'), (55, 'song01')])])
+        [((354, 'song05'), (337, 'song03'), (316, 'song06'), (291, 'song04'), (281, 'song08'), (225, 'song07'), (221, 'song02'), (170, 'song09'), (55, 'song01')), 3],
+        (20, ((746, ((55, 'song01'), (337, 'song03'), (354, 'song05'))), (742, ((170, 'song09'), (281, 'song08'), (291, 'song04'))), (762, ((221, 'song02'), (225, 'song07'), (316, 'song06')))))
     ),
 ])
 def test__utils__get_subsets(args, result):
@@ -95,11 +95,11 @@ def test__utils__get_subsets(args, result):
 
 @mark.parametrize('args,result', [
     (
-        (8, [(1121, [(354, 'song05'), (316, 'song06'), (281, 'song08'), (170, 'song09')]), (1129, [(337, 'song03'), (291, 'song04'), (225, 'song07'), (221, 'song02'), (55, 'song01')])]),
+        (8, ((1121, ((354, 'song05'), (316, 'song06'), (281, 'song08'), (170, 'song09'))), (1129, ((337, 'song03'), (291, 'song04'), (225, 'song07'), (221, 'song02'), (55, 'song01'))))),
         "Difference (in seconds): 8\nGroups:\n  [1] 0:18:41 ['song05 (0:05:54)', 'song06 (0:05:16)', 'song08 (0:04:41)', 'song09 (0:02:50)']\n  [2] 0:18:49 ['song03 (0:05:37)', 'song04 (0:04:51)', 'song07 (0:03:45)', 'song02 (0:03:41)', 'song01 (0:00:55)']\n"
     ),
     (
-        (20, [(762, [(316, 'song06'), (225, 'song07'), (221, 'song02')]), (742, [(291, 'song04'), (281, 'song08'), (170, 'song09')]), (746, [(354, 'song05'), (337, 'song03'), (55, 'song01')])]),
+        (20, ((762, ((316, 'song06'), (225, 'song07'), (221, 'song02'))), (742, ((291, 'song04'), (281, 'song08'), (170, 'song09'))), (746, ((354, 'song05'), (337, 'song03'), (55, 'song01'))))),
         "Difference (in seconds): 20\nGroups:\n  [1] 0:12:42 ['song06 (0:05:16)', 'song07 (0:03:45)', 'song02 (0:03:41)']\n  [2] 0:12:22 ['song04 (0:04:51)', 'song08 (0:04:41)', 'song09 (0:02:50)']\n  [3] 0:12:26 ['song05 (0:05:54)', 'song03 (0:05:37)', 'song01 (0:00:55)']\n"
     ),
 ])

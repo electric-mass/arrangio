@@ -18,7 +18,7 @@ All other resources in this module are considered implementation
 details.
 """
 
-# from functools import lru_cache as cache
+from functools import lru_cache as cache
 from datetime import datetime as _datetime, timedelta as _timedelta
 from re import compile as _compile
 from typing import Final
@@ -57,7 +57,7 @@ def _to_time(seconds: int) -> str:
     return str(_timedelta(seconds=seconds))
 
 
-def get_songs(songs: list) -> list:
+def get_songs(songs: list) -> tuple:
     """Parses the songs entered in the options.
 
     Args:
@@ -65,8 +65,8 @@ def get_songs(songs: list) -> list:
             collected by the `_parser_` module).
 
     Returns:
-        list(tuple(str, int)): The list of songs defined as a tuple of
-            song name and song lenght (in seconds).
+        tuple(tuple(str, int)): The list of songs defined as a tuple of
+            tuples with the song name and the song lenght (in seconds).
 
     Raises:
         ValueError: If the song info is not in the form of
@@ -82,72 +82,55 @@ def get_songs(songs: list) -> list:
         seconds = _to_seconds(
             f'{info["hours"]}:{info["minutes"]}:{info["seconds"]}')
         unsorted_songs.append((seconds, info['label']))
-    return sorted(unsorted_songs, reverse=True)
+    return tuple(sorted(unsorted_songs, reverse=True))
 
 
-# def __list_to_tuple(function):
-#     def wrapper(*args, **kwargs):
-#         args = [tuple(x) if isinstance(x, list) else x for x in args]
-#         kwargs = {
-#             k: tuple(x) if isinstance(x, list) else x
-#             for k, x in kwargs.items()}
-#         print('---->', args, kwargs)
-#         print('---->', *args, **kwargs)
-#         return function(*args, **kwargs)
-#     return wrapper
-
-
-# @__list_to_tuple
-# @cache(maxsize=None, typed=False)
+@cache(maxsize=None, typed=False)
 def __get_subsets(
-        songs: list,
+        songs: tuple,
         songs_length: int,
-        subsets: list) -> list:
+        subsets: tuple) -> tuple:
     """Auxiliar function for `get_subsets`.
 
     Args:
-        songs (list): The list of songs (from `get_songs`).
+        songs (tuple): The list of songs (from `get_songs`).
         songs_length (int): The length of `songs`.
-        subsets (list): The list of possible subsets.
+        subsets (tuple): The list of possible subsets.
 
     Returns:
-        tuple(int, list(tuple(int, str))): The list of subsets.
+        tuple(int, tuple(tuple(int, str))): The list of subsets.
     """
     if songs_length == 0:
         _min, _ = min(subsets)
         _max, _ = max(subsets)
         return (_max - _min, subsets)
-    _songs = songs.copy()
+    _songs = songs[1:]
+    _song = songs[0]
     _songs_length = songs_length - 1
-    _song = _songs.pop(0)
-    _possible_subsets = []
-    for element in subsets:
-        _subset = element[1].copy()
-        _subset.append(_song)
+    _possible_subsets = ()
+    for index, element in enumerate(subsets):
+        _subset = (_song,) + element[1]
         _element = (element[0] + _song[0], _subset)
-        _subsets = subsets.copy()
-        _subsets.remove(element)
-        _subsets.append(_element)
-        _possible_subsets.append(_subsets)
-    return min([
+        _subsets = (_element,) + subsets[:index] + subsets[index+1:]
+        _possible_subsets = (_subsets,) + _possible_subsets
+    return min(
         __get_subsets(_songs, _songs_length, sub)
         for sub
-        in _possible_subsets])
+        in _possible_subsets)
 
 
-def get_subsets(songs: list, num: int) -> list:
+def get_subsets(songs: tuple, num: int) -> tuple:
     """Parses the songs entered in the options.
 
     Args:
-        songs (list): The list of songs (from `get_songs`).
+        songs (tuple): The list of songs (from `get_songs`).
         num (int): The number of subsets to divide the set into.
 
     Returns:
-        list(tuple(int, list(tuple(int, str)))): The list of subsets).
+        tuple(tuple(int, tuple(tuple(int, str)))): The list of subsets).
     """
-    # total_length = sum(l for l, _ in songs)
     songs_length = len(songs)
-    subsets = [(0, [])] * num
+    subsets = ((0, ()),) * num
     return __get_subsets(
         songs,
         songs_length,
