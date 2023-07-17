@@ -13,7 +13,7 @@ time.
 import sys
 from arrangio import __author__, __license__, __project__, __version__
 from arrangio._parser_ import get_parser
-from arrangio._utils_ import get_songs, get_subsets, show_results
+from arrangio._utils_ import get_songs, get_subsets, show_json, show_results
 
 
 def main() -> None:
@@ -37,7 +37,7 @@ def main() -> None:
     if not options.quiet:
         show_results(subsets)
     else:
-        print(subsets)
+        show_json(subsets)
 
 
 if __name__ == '__main__':

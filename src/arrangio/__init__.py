@@ -51,7 +51,7 @@ options:
                         song information (e.g.: label:00h03m27s) (default: None)
   -v, --version         show program's version number and exit
 ```
-"""
+"""  # pylint: disable=line-too-long
 
 from typing import Final
 

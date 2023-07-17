@@ -18,8 +18,9 @@ All other resources in this module are considered implementation
 details.
 """
 
-from functools import lru_cache as cache
 from datetime import datetime as _datetime, timedelta as _timedelta
+from functools import lru_cache as cache
+from json import dumps as _dumps
 from re import compile as _compile
 from typing import Final
 
@@ -135,6 +136,23 @@ def get_subsets(songs: tuple, num: int) -> tuple:
         songs,
         songs_length,
         subsets)
+
+
+def show_json(result: tuple) -> None:
+    """Parses result of `get_subsets` and prints it to the screen as
+    json.
+
+    Args:
+        result (tuple(int, list()): the result from `get_subsets`.
+    """
+    _groups = []
+    for idx, subset in enumerate(result[1]):
+        _group = {
+            'id': idx,
+            'lenght': subset[0],
+            'songs': [{'name': n, 'lenght': l} for (l, n) in subset[1]]}
+        _groups.append(_group)
+    print(_dumps({'difference': result[0], 'groups': _groups}))
 
 
 def show_results(result: tuple) -> None:
