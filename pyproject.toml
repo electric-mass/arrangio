@@ -62,7 +62,7 @@ arrangio = "arrangio.__main__:main"
 
 [project.urls]
 Documentation = 'http://electric-mass.github.io/arrangio'
-Homepage = 'https://github.com/electric-mass//arrangio'
+Homepage = 'https://github.com/electric-mass/arrangio'
 Source = 'https://github.com/electric-mass/arrangio'
 
 [tool.setuptools]
