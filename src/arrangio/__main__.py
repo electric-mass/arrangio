@@ -4,7 +4,7 @@
 # author: Frederico Martins <http://github.com/fscm>
 # license: SPDX-License-Identifier: MIT
 
-"""arrangio
+"""arrangio.
 
 This module arranges a set of songs into groups with similar total play
 time.
@@ -13,11 +13,11 @@ time.
 import sys
 from arrangio import __author__, __license__, __project__, __version__
 from arrangio._parser_ import get_parser
-from arrangio._utils_ import get_songs, get_subsets, show_json, show_results
+from arrangio._utils_ import get_songs, get_subsets, to_json, to_text
 
 
 def main() -> None:
-    """main method"""
+    """Divide group of songs into several groups."""
     header = (
         f'{__project__} version {__version__}\n'
         f'by {__author__} under {__license__} license')
@@ -35,9 +35,9 @@ def main() -> None:
     subsets = get_subsets(songs, options.groups)
     # print(subsets)
     if not options.quiet:
-        show_results(subsets)
+        print(to_text(subsets))
     else:
-        show_json(subsets)
+        print(to_json(subsets))
 
 
 if __name__ == '__main__':

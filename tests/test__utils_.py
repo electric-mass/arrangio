@@ -96,32 +96,28 @@ def test__utils__get_subsets(args, result):
 @mark.parametrize('args,result', [
     (
         (8, ((1121, ((354, 'song05'), (316, 'song06'), (281, 'song08'), (170, 'song09'))), (1129, ((337, 'song03'), (291, 'song04'), (225, 'song07'), (221, 'song02'), (55, 'song01'))))),
-        '{"difference": 8, "groups": [{"id": 0, "lenght": 1121, "songs": [{"name": "song05", "lenght": 354}, {"name": "song06", "lenght": 316}, {"name": "song08", "lenght": 281}, {"name": "song09", "lenght": 170}]}, {"id": 1, "lenght": 1129, "songs": [{"name": "song03", "lenght": 337}, {"name": "song04", "lenght": 291}, {"name": "song07", "lenght": 225}, {"name": "song02", "lenght": 221}, {"name": "song01", "lenght": 55}]}]}\n'
+        '{"difference": 8, "groups": [{"id": 0, "lenght": 1121, "songs": [{"name": "song05", "lenght": 354}, {"name": "song06", "lenght": 316}, {"name": "song08", "lenght": 281}, {"name": "song09", "lenght": 170}]}, {"id": 1, "lenght": 1129, "songs": [{"name": "song03", "lenght": 337}, {"name": "song04", "lenght": 291}, {"name": "song07", "lenght": 225}, {"name": "song02", "lenght": 221}, {"name": "song01", "lenght": 55}]}]}'
     ),
     (
         (20, ((762, ((316, 'song06'), (225, 'song07'), (221, 'song02'))), (742, ((291, 'song04'), (281, 'song08'), (170, 'song09'))), (746, ((354, 'song05'), (337, 'song03'), (55, 'song01'))))),
-        '{"difference": 20, "groups": [{"id": 0, "lenght": 762, "songs": [{"name": "song06", "lenght": 316}, {"name": "song07", "lenght": 225}, {"name": "song02", "lenght": 221}]}, {"id": 1, "lenght": 742, "songs": [{"name": "song04", "lenght": 291}, {"name": "song08", "lenght": 281}, {"name": "song09", "lenght": 170}]}, {"id": 2, "lenght": 746, "songs": [{"name": "song05", "lenght": 354}, {"name": "song03", "lenght": 337}, {"name": "song01", "lenght": 55}]}]}\n'
+        '{"difference": 20, "groups": [{"id": 0, "lenght": 762, "songs": [{"name": "song06", "lenght": 316}, {"name": "song07", "lenght": 225}, {"name": "song02", "lenght": 221}]}, {"id": 1, "lenght": 742, "songs": [{"name": "song04", "lenght": 291}, {"name": "song08", "lenght": 281}, {"name": "song09", "lenght": 170}]}, {"id": 2, "lenght": 746, "songs": [{"name": "song05", "lenght": 354}, {"name": "song03", "lenght": 337}, {"name": "song01", "lenght": 55}]}]}'
     ),
 ])
-def test__utils__show_json(capsys, args, result):
-    """test__utils__show_json."""
-    utils.show_json(args)
-    stdout, _ = capsys.readouterr()
-    assert result == stdout
+def test__utils__to_json(args, result):
+    """test__utils__to_json."""
+    assert result == utils.to_json(args)
 
 
 @mark.parametrize('args,result', [
     (
         (8, ((1121, ((354, 'song05'), (316, 'song06'), (281, 'song08'), (170, 'song09'))), (1129, ((337, 'song03'), (291, 'song04'), (225, 'song07'), (221, 'song02'), (55, 'song01'))))),
-        "Difference (in seconds): 8\nGroups:\n  [1] 0:18:41 ['song05 (0:05:54)', 'song06 (0:05:16)', 'song08 (0:04:41)', 'song09 (0:02:50)']\n  [2] 0:18:49 ['song03 (0:05:37)', 'song04 (0:04:51)', 'song07 (0:03:45)', 'song02 (0:03:41)', 'song01 (0:00:55)']\n"
+        "Difference (in seconds): 8\nGroups:\n  [1] 0:18:41 ['song05 (0:05:54)', 'song06 (0:05:16)', 'song08 (0:04:41)', 'song09 (0:02:50)']\n  [2] 0:18:49 ['song03 (0:05:37)', 'song04 (0:04:51)', 'song07 (0:03:45)', 'song02 (0:03:41)', 'song01 (0:00:55)']"
     ),
     (
         (20, ((762, ((316, 'song06'), (225, 'song07'), (221, 'song02'))), (742, ((291, 'song04'), (281, 'song08'), (170, 'song09'))), (746, ((354, 'song05'), (337, 'song03'), (55, 'song01'))))),
-        "Difference (in seconds): 20\nGroups:\n  [1] 0:12:42 ['song06 (0:05:16)', 'song07 (0:03:45)', 'song02 (0:03:41)']\n  [2] 0:12:22 ['song04 (0:04:51)', 'song08 (0:04:41)', 'song09 (0:02:50)']\n  [3] 0:12:26 ['song05 (0:05:54)', 'song03 (0:05:37)', 'song01 (0:00:55)']\n"
+        "Difference (in seconds): 20\nGroups:\n  [1] 0:12:42 ['song06 (0:05:16)', 'song07 (0:03:45)', 'song02 (0:03:41)']\n  [2] 0:12:22 ['song04 (0:04:51)', 'song08 (0:04:41)', 'song09 (0:02:50)']\n  [3] 0:12:26 ['song05 (0:05:54)', 'song03 (0:05:37)', 'song01 (0:00:55)']"
     ),
 ])
-def test__utils__show_results(capsys, args, result):
+def test__utils__to_text(args, result):
     """test__utils__show_results."""
-    utils.show_results(args)
-    stdout, _ = capsys.readouterr()
-    assert result == stdout
+    assert result == utils.to_text(args)

@@ -18,7 +18,7 @@ computer.
 
 ### Python 3.x
 
-Python version 3.9 or above is required for the tool to work. Python
+Python version 3.8 or above is required for the tool to work. Python
 setup can be found [here](https://www.python.org/downloads/).
 
 ## Installation

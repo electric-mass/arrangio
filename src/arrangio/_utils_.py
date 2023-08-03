@@ -32,7 +32,7 @@ TIMEFMT: Final[str] = '%H:%M:%S'
 
 
 def _to_seconds(timestamp: str) -> int:
-    """converts the timestamp into seconds.
+    """Convert `timestamp` into seconds.
 
     Args:
         timestamp (str): The timestamp to converto to seconds. Format
@@ -47,7 +47,7 @@ def _to_seconds(timestamp: str) -> int:
 
 
 def _to_time(seconds: int) -> str:
-    """converts the seconds into a timestamp.
+    """Convert `seconds` into a timestamp.
 
     Args:
         seconds (int): The seconds to converto to timestamp.
@@ -59,7 +59,10 @@ def _to_time(seconds: int) -> str:
 
 
 def get_songs(songs: list) -> tuple:
-    """Parses the songs entered in the options.
+    """Parse a list of songs.
+
+    Parses the `songs` variable that should be a list with all the
+    songs captured by the `_parser_` module.
 
     Args:
         songs (list(str)): The list of songs inputed by the user (as
@@ -121,7 +124,11 @@ def __get_subsets(
 
 
 def get_subsets(songs: tuple, num: int) -> tuple:
-    """Parses the songs entered in the options.
+    """Divide `songs` into `num` groups.
+
+    Divide the songs present in the `songs` variable into `num` groups
+    such that the difference between the total lenght of the songs on
+    each group is the minimum possible.
 
     Args:
         songs (tuple): The list of songs (from `get_songs`).
@@ -138,12 +145,17 @@ def get_subsets(songs: tuple, num: int) -> tuple:
         subsets)
 
 
-def show_json(result: tuple) -> None:
-    """Parses result of `get_subsets` and prints it to the screen as
-    json.
+def to_json(result: tuple) -> str:
+    """Convert the `result` to JSON.
+
+    Convert the content of the `result` variable to a JSON string. The
+    `result` should be the output of the `get_subsets` function.
 
     Args:
         result (tuple(int, list()): the result from `get_subsets`.
+
+    Returns:
+        str: The JSON string that represents the `result`.
     """
     _groups = []
     for idx, subset in enumerate(result[1]):
@@ -152,18 +164,27 @@ def show_json(result: tuple) -> None:
             'lenght': subset[0],
             'songs': [{'name': n, 'lenght': l} for (l, n) in subset[1]]}
         _groups.append(_group)
-    print(_dumps({'difference': result[0], 'groups': _groups}))
+    return _dumps({'difference': result[0], 'groups': _groups})
 
 
-def show_results(result: tuple) -> None:
-    """Parses result of `get_subsets` and prints it to the screen.
+def to_text(result: tuple) -> str:
+    """Convert the `result` to text.
+
+    Convert the content of the `result` variable into a printable
+    string. The `result` should be the output of the `get_subsets`
+    function.
 
     Args:
         result (tuple(int, list()): the result from `get_subsets`.
+
+    Returns:
+        str: The string that represents the `result`.
     """
-    print('Difference (in seconds):', result[0])
-    print('Groups:')
+    text = [
+        f'Difference (in seconds): {result[0]}',
+        'Groups:']
     for idx, subset in enumerate(result[1]):
-        print(
-            f'  [{idx + 1}] {_to_time(subset[0])}',
-            [f'{song[1]} ({_to_time(song[0])})' for song in subset[1]])
+        text.append(
+            f'  [{idx + 1}] {_to_time(subset[0])} '
+            f'{[f"{song[1]} ({_to_time(song[0])})" for song in subset[1]]}')
+    return '\n'.join(text)
