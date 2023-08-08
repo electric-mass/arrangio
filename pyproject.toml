@@ -334,7 +334,7 @@ default-docstring-type = 'google'
 # ruff
 [tool.ruff]
 extend-exclude = ['*.pyi']
-ignore = ['DTZ']
+# ignore = ['DTZ']
 line-length = 79
 select = ['ALL']
 src = ['src']

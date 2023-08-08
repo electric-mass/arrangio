@@ -18,7 +18,7 @@ All other resources in this module are considered implementation
 details.
 """
 
-from datetime import datetime as _datetime, timedelta as _timedelta
+from datetime import timedelta as _timedelta
 from functools import lru_cache as cache
 from json import dumps as _dumps
 from re import compile as _compile
@@ -31,19 +31,22 @@ REGXPR: Final[str] = (
 TIMEFMT: Final[str] = '%H:%M:%S'
 
 
-def _to_seconds(timestamp: str) -> int:
-    """Convert `timestamp` into seconds.
+def _to_seconds(
+        hours: int = 0,
+        minutes: int = 0,
+        seconds: int = 0) -> int:
+    """Convert `hours`, `minutes`, and `seconds` into seconds.
 
     Args:
-        timestamp (str): The timestamp to converto to seconds. Format
-            needs to be 'HH:MM:SS'.
+        hours (int): Amount of hours to convert. Defaults to 0.
+        minutes (int): Amount of minutes to convert. Defaults to 0.
+        seconds (int): Amount of seconds to convert. Defaults to 0.
 
     Returns:
         int: The timestamp in seconds.
     """
-    return int(
-        (_datetime.strptime(
-            timestamp, TIMEFMT) - _datetime(1900, 1, 1)).total_seconds())
+    return int(_timedelta(
+        seconds=seconds, minutes=minutes, hours=hours).total_seconds())
 
 
 def _to_time(seconds: int) -> str:
@@ -85,7 +88,9 @@ def get_songs(songs: list) -> tuple:
             raise ValueError(msg)
         info = matched.groupdict(default='0')
         seconds = _to_seconds(
-            f'{info["hours"]}:{info["minutes"]}:{info["seconds"]}')
+            hours=int(info['hours']),
+            minutes=int(info['minutes']),
+            seconds=int(info['seconds']))
         unsorted_songs.append((seconds, info['label']))
     return tuple(sorted(unsorted_songs, reverse=True))
 

@@ -11,14 +11,17 @@ from arrangio import _utils_ as utils
 
 
 @mark.parametrize('args,result,exception', [
-    ([], None, TypeError),
-    (['01'], None, ValueError),
-    (['00:01'], None, ValueError),
-    (['0:0:1'], 1, None),
-    (['00:00:01'], 1, None),
-    (['00:01:00'], 60, None),
-    (['01:00:00'], 3600, None),
-    (['01:10:12'], 4212, None),
+    ([''], None, TypeError),
+    (['1'], None, TypeError),
+    (['01'], None, TypeError),
+    (['0', '1'], None, TypeError),
+    (['00', '01'], None, TypeError),
+    ([1], 3600, None),
+    ([0, 1], 60, None),
+    ([0, 0, 1], 1, None),
+    ([0, 1, 0], 60, None),
+    ([1, 0, 0], 3600, None),
+    ([1, 10, 12], 4212, None),
 ])
 def test__utils___to_seconds(args, result, exception):
     """test__utils___to_seconds."""
