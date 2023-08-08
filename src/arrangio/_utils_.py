@@ -81,7 +81,8 @@ def get_songs(songs: list) -> tuple:
     for song in songs:
         matched = pattern.match(song)
         if matched is None:
-            raise ValueError(f'[ERROR] Invalid song information ({song}).')
+            msg = f'[ERROR] Invalid song information ({song}).'
+            raise ValueError(msg)
         info = matched.groupdict(default='0')
         seconds = _to_seconds(
             f'{info["hours"]}:{info["minutes"]}:{info["seconds"]}')
@@ -113,10 +114,10 @@ def __get_subsets(
     _songs_length = songs_length - 1
     _possible_subsets = ()
     for index, element in enumerate(subsets):
-        _subset = (_song,) + element[1]
+        _subset = (_song, *element[1])
         _element = (element[0] + _song[0], _subset)
-        _subsets = (_element,) + subsets[:index] + subsets[index+1:]
-        _possible_subsets = (_subsets,) + _possible_subsets
+        _subsets = (_element, *subsets[:index] , *subsets[index+1:])
+        _possible_subsets = (_subsets, *_possible_subsets)
     return min(
         __get_subsets(_songs, _songs_length, sub)
         for sub
@@ -162,7 +163,7 @@ def to_json(result: tuple) -> str:
         _group = {
             'id': idx,
             'lenght': subset[0],
-            'songs': [{'name': n, 'lenght': l} for (l, n) in subset[1]]}
+            'songs': [{'name': nm, 'lenght': ln} for (ln, nm) in subset[1]]}
         _groups.append(_group)
     return _dumps({'difference': result[0], 'groups': _groups})
 

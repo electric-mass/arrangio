@@ -49,6 +49,7 @@ dev = [
     'pytest>=7.1.2',
     'pytest-cov>=3.0.0',
     'pytest-mock>=3.8.2',
+    'ruff>=0.0.282',
     'twine>=4.0.0',
     'vermin>=1.4.0',
 ]
@@ -329,3 +330,41 @@ accept-no-raise-doc = false
 accept-no-return-doc = false
 accept-no-yields-doc = false
 default-docstring-type = 'google'
+
+# ruff
+[tool.ruff]
+extend-exclude = ['*.pyi']
+ignore = ['DTZ']
+line-length = 79
+select = ['ALL']
+src = ['src']
+tab-size = 4
+target-version = 'py38'
+
+[tool.ruff.isort]
+combine-as-imports = true
+lines-after-imports = 2
+
+[tool.ruff.flake8-quotes]
+docstring-quotes = 'double'
+inline-quotes = 'single'
+multiline-quotes = 'double'
+
+[tool.ruff.mccabe]
+max-complexity = 5
+
+[tool.ruff.per-file-ignores]
+#'__init__.pyi' = ['D100']
+'__main__.py' = ['T201']
+
+[tool.ruff.pycodestyle]
+max-doc-length = 72
+
+[tool.ruff.pydocstyle]
+convention = 'google'
+
+[tool.ruff.pylint]
+max-args = 5
+max-branches = 12
+max-returns = 6
+max-statements = 50

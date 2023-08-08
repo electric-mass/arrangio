@@ -11,6 +11,7 @@ time.
 """
 
 import sys
+
 from arrangio import __author__, __license__, __project__, __version__
 from arrangio._parser_ import get_parser
 from arrangio._utils_ import get_songs, get_subsets, to_json, to_text
@@ -25,15 +26,12 @@ def main() -> None:
     options = parser.parse_args()
     if not options.quiet:
         print(header)
-    # print(options)
     try:
         songs = get_songs(options.song)
     except ValueError as error:
         print(error)
         sys.exit(9)
-    # print(songs)
     subsets = get_subsets(songs, options.groups)
-    # print(subsets)
     if not options.quiet:
         print(to_text(subsets))
     else:

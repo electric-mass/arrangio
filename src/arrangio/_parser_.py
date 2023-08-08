@@ -19,9 +19,7 @@ All other resources in this module are considered implementation
 details.
 """
 
-from argparse import (
-    ArgumentDefaultsHelpFormatter,
-    ArgumentParser)
+from argparse import ArgumentDefaultsHelpFormatter, ArgumentParser
 from typing import Final
 
 

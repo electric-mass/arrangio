@@ -51,9 +51,10 @@ options:
                         song information (e.g.: label:00h03m27s) (default: None)
   -v, --version         show program's version number and exit
 ```
-"""  # pylint: disable=line-too-long
+"""  # pylint: disable=line-too-long  # noqa: E501,W505
 
 from typing import Final
+
 
 __all__: Final[tuple] = ()
 

@@ -33,6 +33,7 @@ SHELL := /bin/sh
 
 # Tools
 AUTOPEP := autopep8
+LINT := ruff
 PDOC := pdoc3
 PIP := pip3
 PYLINT := pylint
@@ -48,6 +49,7 @@ RM := rm -rf
 
 # Tools options
 AUTOPEP_ARGS += --aggressive --aggressive --recursive
+LINT_ARGS += check --exit-zero
 PDOC_ARGS += --force --html --skip-errors
 PIP_ARGS += --quiet --upgrade --editable
 PYLINT_ARGS += --exit-zero
@@ -141,7 +143,7 @@ format-show: dev ## Shows the required code formats.
 
 lint: dev ## Checks the project for code smells.
 	@echo "Checking the code..."
-	@$(VENV_DIR)/bin/$(PYLINT) $(PYLINT_ARGS) $(SOURCE_DIR)/$(PACKAGE_NAME)
+	@$(VENV_DIR)/bin/$(LINT) $(LINT_ARGS) $(SOURCE_DIR)/$(PACKAGE_NAME)
 
 minversion: dev ## Calculates python minimum version required.
 	@echo "Finding minimum Python version..."
@@ -165,6 +167,10 @@ else
 	@$(VENV_DIR)/bin/$(TWINE) upload --repository testpypi \
 		./dist/*
 endif
+
+pylint: dev ## Checks the project for code smells.
+	@echo "Checking the code..."
+	@$(VENV_DIR)/bin/$(PYLINT) $(PYLINT_ARGS) $(SOURCE_DIR)/$(PACKAGE_NAME)
 
 stubs: dev ## Generates stubs for the project.
 	@echo "Generating stubs..."

@@ -1,5 +1,6 @@
 from typing import Final
 
+
 REGXPR: Final[str]
 TIMEFMT: Final[str]
 
