@@ -6,13 +6,15 @@
 
 # Project Macros/Variables
 PACKAGE_NAME := arrangio
-SOURCE_DIR := src
-VENV_DIR := .venv
-__PYPROJECT_TOML__ := pyproject.toml
+PROJECT_DIR := .
+DOCS_DIR := $(PROJECT_DIR)/docs
+SOURCE_DIR := $(PROJECT_DIR)/src
+VENV_DIR := $(PROJECT_DIR)/.venv
+__PYPROJECT_TOML__ := $(PROJECT_DIR)/pyproject.toml
 __PYVENV_CFG__ := $(VENV_DIR)/pyvenv.cfg
 
 BUILD_ARTIFACTS := build dist src/*.egg-info src/"$(PACKAGE_NAME)"/*.so
-CACHE_ITEMS := .mypy_cache .pytest_cache .coverage*
+CACHE_ITEMS := .mypy_cache .pytest_cache .coverage* .ruff_cache
 
 # Defines
 define PRINT_HELP_SCRIPT
@@ -45,7 +47,7 @@ VERMIN := vermin
 
 FIND := find
 MV := mv
-RM := rm -rf
+RM := rm -f
 
 # Tools options
 AUTOPEP_ARGS += --aggressive --aggressive --recursive
@@ -54,7 +56,7 @@ PDOC_ARGS += --force --html --skip-errors
 PIP_ARGS += --quiet --upgrade --editable
 PYLINT_ARGS += --exit-zero
 PYTEST_ARGS += --quiet --no-header --color=auto --code-highlight=yes
-PYTEST_DOC_ARGS += --doctest-modules --doctest-continue-on-failure
+PYTEST_DOC_ARGS += --doctest-modules --doctest-continue-on-failure --suppress-no-test-exit-code
 STUBGEN_ARGS += --quiet --export-less
 VERMIN_ARGS += --no-tips --eval-annotations --no-parse-comments
 
@@ -63,14 +65,11 @@ VERMIN_ARGS += --no-tips --eval-annotations --no-parse-comments
 
 .ONESHELL:
 
-.PHONY: _clean-build _clean-cache _clean-dev _clean-docs _clean-stubs
-.PHONY: build default dev docs help clean clean-all format lint tests
-.PHONY: publish publish-test
-
 # Targets
+.PHONY: default
 default: help
 
-$(__PYVENV_CFG__): $(__PYPROJECT_TOML__)
+$(__PYVENV_CFG__): | $(__PYPROJECT_TOML__)
 	@echo "Creating the 'venv'..."
 	@$(PYTHON) -m venv --upgrade-deps "$(VENV_DIR)"
 	@echo "Instaling requirements..."
@@ -78,19 +77,22 @@ $(__PYVENV_CFG__): $(__PYPROJECT_TOML__)
 	@echo "Instaling project..."
 	@$(VENV_DIR)/bin/$(PIP) install $(PIP_ARGS) .
 
+.PHONY: _clean-build
 _clean-build:
 	@echo "Cleaning build artifacts..."
-	@$(RM) $(foreach artifact, $(BUILD_ARTIFACTS), ./$(artifact))
+	@$(RM) -r $(foreach artifact, $(BUILD_ARTIFACTS), ./$(artifact))
 
+.PHONY: _clean-cache
 _clean-cache:
 	@echo "Cleaning cache..."
-	@$(RM) $(foreach file, $(CACHE_ITEMS), ./$(file))
-	@$(FIND) . -mindepth 1 -type f -name "*.py[co]" -delete \
+	@$(RM) -r $(foreach file, $(CACHE_ITEMS), ./$(file))
+	@$(FIND) "$(PROJECT_DIR)" -mindepth 1 -type f -name "*.py[co]" -delete \
 		-o -type d -name "__pycache__" -delete
 
+.PHONY: _clean-dev
 _clean-dev:
 	@echo "Deleting the 'venv'..."
-	@$(RM) $(VENV_DIR)/*
+	@$(RM) -r "$(VENV_DIR)"/*
 ifdef VIRTUAL_ENV
 	@echo
 	@echo "!! Python venv active. !!"
@@ -99,65 +101,85 @@ ifdef VIRTUAL_ENV
 	@echo
 endif
 
+.PHONY: _clean-docs
 _clean-docs:
 	@echo "Cleaning documentation..."
-	@$(FIND) ./docs -mindepth 1 -type f -not -name '.*' -delete \
+	@$(FIND) "$(DOCS_DIR)" -mindepth 1 -type f -not -name '.*' -delete \
 		-o -type d -delete
 
+.PHONY: _clean-stubs
 _clean-stubs:
 	@echo "Deleting stubs..."
-	@$(FIND) $(SOURCE_DIR)/$(PACKAGE_NAME) -mindepth 1 -type f \
+	@$(FIND) "$(SOURCE_DIR)"/$(PACKAGE_NAME) -mindepth 1 -type f \
 		-name "*.pyi" -delete
 
-build: $(__PYVENV_CFG__) _clean-build ## Create library package(s).
+.PHONY: build
+build: _clean-build | $(__PYVENV_CFG__) ## Create library package(s).
 	@echo "Building wheel..."
-	@$(VENV_DIR)/bin/$(PYTHON) -m build .
+	@"$(VENV_DIR)"/bin/$(PYTHON) -m build .
 
+.PHONY: clean
 clean: _clean-build _clean-cache ## Cleans the project caches and builds.
 
+.PHONY: clean-all
 clean-all: clean _clean-stubs _clean-dev ## Cleans everything.
 
-dev: $(__PYVENV_CFG__) ## Creates the development environment.
+.PHONY: dev
+dev: | $(__PYVENV_CFG__) ## Creates the development environment.
 
+.PHONY: dev-show
+dev-show: dev
+	@"$(VENV_DIR)"/bin/$(PYTHON) \
+		-c "import sys; print(f'Python ' + sys.version.replace('\n',''))"
+	@"$(VENV_DIR)"/bin/$(PIP) --version
+	@echo venv: $(VENV_DIR)
+
+.PHONY: docs
 docs: dev _clean-docs ## Creates the project documentation.
-#	@echo "Checking documentation examples..."
-#	@$(VENV_DIR)/bin/$(PYTEST) $(PYTEST_ARGS) $(PYTEST_DOC_ARGS) \
-#		--rootdir=. $(SOURCE_DIR)/$(PACKAGE_NAME)
+	@echo "Checking documentation examples..."
+	@"$(VENV_DIR)"/bin/$(PYTEST) $(PYTEST_ARGS) $(PYTEST_DOC_ARGS) \
+		--rootdir="$(PROJECT_DIR)" "$(SOURCE_DIR)"/$(PACKAGE_NAME)
 	@echo "Generating documentation..."
-	@$(VENV_DIR)/bin/$(PDOC) $(PDOC_ARGS) \
-		--template-dir $(SOURCE_DIR)/docs/templates \
-		--output-dir ./docs \
+	@"$(VENV_DIR)"/bin/$(PDOC) $(PDOC_ARGS) \
+		--template-dir "$(SOURCE_DIR)"/docs/templates \
+		--output-dir "$(DOCS_DIR)" \
 		$(SOURCE_DIR)/$(PACKAGE_NAME)
-	@$(MV) ./docs/$(PACKAGE_NAME)/* ./docs/
-	@$(RM) ./docs/$(PACKAGE_NAME)
+	@$(MV) "$(DOCS_DIR)"/$(PACKAGE_NAME)/* "$(DOCS_DIR)"/
+	@$(RM) -r "$(DOCS_DIR)"/$(PACKAGE_NAME)
 
+.PHONY: format
 format: dev ## Formats the code.
 	@echo "Formating code..."
-	@$(VENV_DIR)/bin/$(AUTOPEP) $(AUTOPEP_ARGS) --in-place \
-		$(SOURCE_DIR)/$(PACKAGE_NAME)
+	@"$(VENV_DIR)"/bin/$(AUTOPEP) $(AUTOPEP_ARGS) --in-place \
+		"$(SOURCE_DIR)"/$(PACKAGE_NAME)
 
+.PHONY: format-show
 format-show: dev ## Shows the required code formats.
 	@echo "Formating code..."
-	@$(VENV_DIR)/bin/$(AUTOPEP) $(AUTOPEP_ARGS) --diff \
-		$(SOURCE_DIR)/$(PACKAGE_NAME)
+	@"$(VENV_DIR)"/bin/$(AUTOPEP) $(AUTOPEP_ARGS) --diff \
+		"$(SOURCE_DIR)"/$(PACKAGE_NAME)
 
+.PHONY: lint
 lint: dev ## Checks the project for code smells.
 	@echo "Checking the code..."
-	@$(VENV_DIR)/bin/$(LINT) $(LINT_ARGS) $(SOURCE_DIR)/$(PACKAGE_NAME)
+	@"$(VENV_DIR)"/bin/$(LINT) $(LINT_ARGS) "$(SOURCE_DIR)"/$(PACKAGE_NAME)
 
+.PHONY: minversion
 minversion: dev ## Calculates python minimum version required.
 	@echo "Finding minimum Python version..."
-	@$(VENV_DIR)/bin/$(VERMIN) $(VERMIN_ARGS) $(SOURCE_DIR)/$(PACKAGE_NAME)
+	@"$(VENV_DIR)"/bin/$(VERMIN) $(VERMIN_ARGS) "$(SOURCE_DIR)"/$(PACKAGE_NAME)
 
+.PHONY: publish
 publish: dev ## Uploads the project to 'pypi.org'.
 ifeq (,$(wildcard ./dist))
 	@echo "Packages not found."
 	@echo "Run 'make build' first to create them."
 else
 	@echo "Publishing to 'pypi.org'..."
-	@$(VENV_DIR)/bin/$(TWINE) upload ./dist/*
+	@"$(VENV_DIR)"/bin/$(TWINE) upload "$(PROJECT_DIR)"/dist/*
 endif
 
+.PHONY: publish-test
 publish-test: dev ## Uploads the project to 'test.pypi.org'.
 ifeq (,$(wildcard ./dist))
 	@echo "Packages not found."
@@ -165,22 +187,26 @@ ifeq (,$(wildcard ./dist))
 else
 	@echo "Publishing to test.pypi.org..."
 	@$(VENV_DIR)/bin/$(TWINE) upload --repository testpypi \
-		./dist/*
+		"$(PROJECT_DIR)"/dist/*
 endif
 
+.PHONY: pylint
 pylint: dev ## Checks the project for code smells.
 	@echo "Checking the code..."
-	@$(VENV_DIR)/bin/$(PYLINT) $(PYLINT_ARGS) $(SOURCE_DIR)/$(PACKAGE_NAME)
+	@"$(VENV_DIR)"/bin/$(PYLINT) $(PYLINT_ARGS) "$(SOURCE_DIR)"/$(PACKAGE_NAME)
 
+.PHONY: stubs
 stubs: dev ## Generates stubs for the project.
 	@echo "Generating stubs..."
-	@$(VENV_DIR)/bin/$(STUBGEN) $(STUBGEN_ARGS) --package $(PACKAGE_NAME) \
-		--search-path $(SOURCE_DIR) --output $(SOURCE_DIR)
+	@"$(VENV_DIR)"/bin/$(STUBGEN) $(STUBGEN_ARGS) --package $(PACKAGE_NAME) \
+		--search-path "$(SOURCE_DIR)" --output "$(SOURCE_DIR)"
 
+.PHONY: tests
 tests: dev ## Runs the tests.
 	@echo "Running tests..."
-	@$(VENV_DIR)/bin/$(PYTEST) $(PYTEST_ARGS) --cov=$(PACKAGE_NAME) \
-		--rootdir=.
+	@"$(VENV_DIR)"/bin/$(PYTEST) $(PYTEST_ARGS) --cov=$(PACKAGE_NAME) \
+		--rootdir="$(PROJECT_DIR)"
 
+.PHONY: help
 help: ## Shows this help message.
 	@$(PYTHON) -c "$$PRINT_HELP_SCRIPT" < $(MAKEFILE_LIST)
