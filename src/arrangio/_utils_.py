@@ -121,7 +121,7 @@ def __get_subsets(
     for index, element in enumerate(subsets):
         _subset = (_song, *element[1])
         _element = (element[0] + _song[0], _subset)
-        _subsets = (_element, *subsets[:index] , *subsets[index+1:])
+        _subsets = (_element, *subsets[:index], *subsets[index + 1:])
         _possible_subsets = (_subsets, *_possible_subsets)
     return min(
         __get_subsets(_songs, _songs_length, sub)
