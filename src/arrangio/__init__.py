@@ -61,4 +61,4 @@ __all__: Final[tuple] = ()
 __author__: Final[str] = 'Electric Mass Records'
 __license__: Final[str] = 'MIT'
 __project__: Final[str] = __package__
-__version__: Final[str] = '0.3.0'
+__version__: Final[str] = '0.4.0'
