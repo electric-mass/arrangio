@@ -1,10 +1,9 @@
 # build
 [build-system]
 requires = [
-    'setuptools>=61',
-    'wheel',
+    'hatchling>=1.18.0',
 ]
-build-backend = 'setuptools.build_meta'
+build-backend = 'hatchling.build'
 
 [project]
 authors = [
@@ -67,27 +66,17 @@ Documentation = 'http://electric-mass.github.io/arrangio'
 Homepage = 'https://github.com/electric-mass/arrangio'
 Source = 'https://github.com/electric-mass/arrangio'
 
-[tool.setuptools]
-include-package-data = true
+[tool.hatch.version]
+path = 'src/arrangio/__init__.py'
+pattern = "(?i)^(?:__version__|VERSION)(?:\\:.*)? *= *(['\\\"])v?(?P<version>.+?)\\1"
 
-[tool.setuptools.dynamic]
-version = {attr = 'arrangio.__version__'}
-
-[tool.setuptools.packages.find]
-where = [
-    'src',
-]
+[tool.hatch.build.targets.sdist]
 exclude = [
     'docs*',
-    'tests*',
-    'tools*',
-]
-
-[tool.setuptools.package-data]
-arrangio = [
-    'py.typed',
-    '*.pyi',
-    '**/*.pyi'
+    'CODE_OF_CONDUCT.md',
+    'CONTRIBUTING.md',
+    'Makefile',
+    'justfile',
 ]
 
 # pytest
