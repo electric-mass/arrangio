@@ -18,11 +18,15 @@ All other resources in this module are considered implementation
 details.
 """
 
+from collections import defaultdict, deque
 from datetime import timedelta as _timedelta
 from functools import lru_cache as cache
 from json import dumps as _dumps
 from re import compile as _compile
 from typing import Final
+
+
+__all__: Final[tuple] = ('get_songs', 'get_subsets', 'to_json', 'to_text')
 
 
 REGXPR: Final[str] = (
@@ -117,12 +121,12 @@ def __get_subsets(
     _songs = songs[1:]
     _song = songs[0]
     _songs_length = songs_length - 1
-    _possible_subsets = ()
+    _possible_subsets = set()
     for index, element in enumerate(subsets):
         _subset = (_song, *element[1])
-        _element = (element[0] + _song[0], _subset)
+        _element = (element[0] + _song, _subset)
         _subsets = (_element, *subsets[:index], *subsets[index + 1:])
-        _possible_subsets = (_subsets, *_possible_subsets)
+        _possible_subsets.update(set((_subsets,)))
     return min(
         __get_subsets(_songs, _songs_length, sub)
         for sub
@@ -143,12 +147,18 @@ def get_subsets(songs: tuple, num: int) -> tuple:
     Returns:
         tuple(tuple(int, tuple(tuple(int, str)))): The list of subsets).
     """
-    songs_length = len(songs)
-    subsets = ((0, ()),) * num
-    return __get_subsets(
-        songs,
-        songs_length,
-        subsets)
+    song_lenghts = tuple(sorted(song[0] for song in songs))
+    songs_ref = defaultdict(deque)
+    for lenght, name in songs:
+        songs_ref[lenght].append(name)
+    subsets = __get_subsets(
+        song_lenghts,
+        len(song_lenghts),
+        ((0, ()),) * num)
+    return (
+        subsets[0],
+        tuple((sub[0], tuple((lenght, songs_ref.get(lenght).popleft())
+                             for lenght in sub[1])) for sub in subsets[1]))
 
 
 def to_json(result: tuple) -> str:

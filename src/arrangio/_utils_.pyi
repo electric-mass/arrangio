@@ -1,7 +1,4 @@
-from typing import Final
-
-REGXPR: Final[str]
-TIMEFMT: Final[str]
+__all__ = ['get_songs', 'get_subsets', 'to_json', 'to_text']
 
 def get_songs(songs: list) -> tuple: ...
 def get_subsets(songs: tuple, num: int) -> tuple: ...
